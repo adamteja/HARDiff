@@ -1,16 +1,12 @@
 package com.adamteja.har;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.sstoehr.harreader.HarReader;
 import de.sstoehr.harreader.HarReaderException;
 import de.sstoehr.harreader.model.Har;
 import de.sstoehr.harreader.model.HarEntry;
 import de.sstoehr.harreader.model.HarHeader;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -172,8 +168,8 @@ public class HarUtil {
     public List<HarEntry> applyBlacklist( List<HarEntry> entries){
 
         List<HarEntry> rv = new ArrayList<>();
-        List<String> whitelist = getListFromFile("src/main/resources/whitelist_hosts.txt");
-        List<String> blacklist = getListFromFile("src/main/resources/blacklist_hosts.txt");
+        List<String> whitelist = getListFromFile("whitelist_hosts.txt");
+        List<String> blacklist = getListFromFile("blacklist_hosts.txt");
 
 
         for(int i=0; i<entries.size(); i++) {
@@ -246,9 +242,6 @@ public class HarUtil {
                 String sourceMimeType = getContentType(entries.get(i).getResponse().getHeaders());
                 String sourceStatus = String.valueOf(entries.get(i).getResponse().getStatus());
 
-                System.out.println( "S: "+ sourceBaseURL +" "+ sourceMimeType +" "+ sourceStatus);
-
-
                 // create a list of unique url/mime/status entries
                 //      if exists, add to counter
                 //      else if new, add and set counter to 1
@@ -268,7 +261,7 @@ public class HarUtil {
                         counter++;
                         String[] a = {sourceBaseURL, sourceMimeType, sourceStatus, Integer.toString(counter)};
                         uniques.set(j, a);
-                        System.out.println("match");
+//                        System.out.println("match");
                         match = true;
                         j = uniques.size();  // at match, bail on this loop
 
@@ -277,7 +270,7 @@ public class HarUtil {
                 if(match==false){
                     String[] a = {sourceBaseURL,sourceMimeType,sourceStatus,"1"};
                     uniques.add(a);
-                    System.out.println("no match adding");
+//                    System.out.println("no match adding");
                 }
 
 
@@ -386,7 +379,6 @@ public class HarUtil {
 
     private List<HarEntry> searchEntriesListForTag(List<HarEntry> EntriesList, String[][] keyValues ){
         List<HarEntry> EntriesListRV = new ArrayList<>();
-        HarEntry harEntry = null;
 
         String matchUrl = keyValues[0][1];
         int matchstatus = Integer.parseInt(keyValues[2][1]);
@@ -397,10 +389,6 @@ public class HarUtil {
             String url = EntriesList.get(i).getRequest().getUrl().toString();
             int status = EntriesList.get(i).getResponse().getStatus();
             String mimetype = getContentType(EntriesList.get(i).getResponse().getHeaders());
-
-//            System.out.println(i+": "+ url +
-//                    ", "+ status +
-//                    ", "+ mimetype);
 
             if( url.contains(matchUrl) &&
                 status == matchstatus &&
